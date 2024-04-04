@@ -27,8 +27,11 @@ export const login = async (req, res, next) => {
 
 export const register = async (req, res, next) => {
   try {
-    const { name, email, password, programmingExperience, learnedTechnologies } = req.body;
-    let img = null;
+    const { name, email, password,image, programmingExperience, learnedTechnologies } = req.body;
+    let img=null;
+    if (image!=null){
+      img=image;
+    }
     let user = await User.findOne({ email });
 
     if (user) return next(new ErrorHandler("User AllReady Exists", 400));
