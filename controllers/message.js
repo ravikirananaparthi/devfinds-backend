@@ -4,7 +4,7 @@ export const getMessages = async (req, res, next) => {
   try {
     const { from, to } = req.body;
     console.log(from, to);
-    // Validate request body
+   
     if (!from || !to) {
       return res
         .status(400)

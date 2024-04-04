@@ -76,9 +76,9 @@ export const feed = async (req, res, next) => {
     // Fetch all posts from the database
     const posts = await Post.find().sort({ createdAt: -1 }).populate({
       path: "user",
-      select: "name image", // Select only the 'name' and 'image' fields of the user
+      select: "name image", 
     });
-    // Send the fetched posts as a response
+  
     res.status(200).json(posts);
   } catch (error) {
     console.error("Error fetching posts:", error);

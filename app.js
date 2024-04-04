@@ -57,12 +57,12 @@ app.get("/", (req, res) => {
 });
 app.get("/api/v1/notifications", isAuthenticated, async (req, res) => {
   try {
-    // Fetch notifications from the database for the logged-in user
+    
     const notifications = await Notification.find({
       userId: req.user._id,
     }).sort({ createdAt: -1 });
 
-    // Send the notifications as a response
+  
     res.json({ success: true, notifications });
   } catch (error) {
     // Handle errors
@@ -95,8 +95,8 @@ io.on("connection", (socket) => {
 });
 app.get("/api/v1/friends", isAuthenticated, async (req, res) => {
   try {
-    // Assuming the user ID is available in the request object after authentication
-    const userId = req.user.id; // Adjust this based on your authentication setup
+    
+    const userId = req.user.id; 
 
     // Fetch the user's data from the database
     const user = await User.findById(userId).populate(
@@ -108,10 +108,10 @@ app.get("/api/v1/friends", isAuthenticated, async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Extract the list of friends from the user's data
+   
     const friends = user.friends;
 
-    // Return the list of friends as a response
+
     res.status(200).json({ friends });
   } catch (error) {
     console.error("Error fetching friends:", error);
