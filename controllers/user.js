@@ -6,12 +6,12 @@ import { Post } from "../models/post.js";
 import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
-  service: "Gmail",
+  host: 'smtp.ethereal.email',
+  port: 587,
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  secure: true,
+      user: 'verner.rau@ethereal.email',
+      pass: 'zMSMEnEUK6e69h5U1V'
+  }
 });
 
 // Helper function to send confirmation email
