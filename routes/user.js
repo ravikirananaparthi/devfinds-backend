@@ -9,7 +9,6 @@ import {
   login,
   logout,
   register,
-  registergo,
 } from "../controllers/user.js";
 
 import { Post } from "../models/post.js";
@@ -44,7 +43,7 @@ router.post("/posts", isAuthenticated, async (req, res) => {
 
 router.post("/new", register);
 
-router.post("/new/google", registergo);
+
 
 
 router.post("/login", login);
