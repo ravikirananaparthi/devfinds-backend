@@ -53,6 +53,41 @@ export const register = async (req, res, next) => {
   }
 };
 
+export const registergo = async (req, res, next) => {
+  try {
+    const { name, email, password, image, googleUid, programmingExperience, learnedTechnologies } = req.body;
+    
+    let img = null;
+    if (image != null) {
+      img = image;
+    }
+    
+    let user = await User.findOne({ email });
+
+    if (user) {
+      return next(new ErrorHandler("User Already Exists", 400));
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create the user with Google UID as the _id
+    user = await User.create({
+      _id: googleUid, // Use Google UID as _id
+      name,
+      email,
+      password: hashedPassword, // Note: In Google sign-up, you might not use this password
+      image: img,
+      programmingExperience,
+      learnedTechnologies,
+    });
+
+    sendCookie(user, res, "Registered successfully", 201);
+  } catch (error) {
+    next(error);
+  }
+};
+
+
 export const getMyprofile = (req, res) => {
   res.status(200).json({
     success: true,
