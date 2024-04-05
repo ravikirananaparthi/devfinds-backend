@@ -28,7 +28,7 @@ export const login = async (req, res, next) => {
 export const register = async (req, res, next) => {
   try {
     const { name, email, password,image, programmingExperience, learnedTechnologies } = req.body;
-    console.log(req);
+    
     let img=null;
     if (image!=null){
       img=image;
