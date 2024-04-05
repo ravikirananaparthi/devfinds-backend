@@ -28,6 +28,7 @@ export const login = async (req, res, next) => {
 export const register = async (req, res, next) => {
   try {
     const { name, email, password,image, programmingExperience, learnedTechnologies } = req.body;
+    console.log(req);
     let img=null;
     if (image!=null){
       img=image;
@@ -53,61 +54,6 @@ export const register = async (req, res, next) => {
   }
 };
 
-export const registergo = async (req, res, next) => {
-  try {
-    const { name, email, password, image, programmingExperience, learnedTechnologies } = req.body;
-    let img = null;
-    if (image != null) {
-      img = image;
-    }
-    let user = await User.findOne({ email });
-
-    if (user) return next(new ErrorHandler("User Already Exists", 400));
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    user = await User.create({
-      name,
-      email,
-      password: hashedPassword,
-      image: img,
-      programmingExperience,
-      learnedTechnologies,
-    });
-
-    // Assuming idToken and csrfToken are available in the request body
-    const idToken = req.body.idToken.toString();
-    const csrfToken = req.body.csrfToken.toString();
-
-    // Guard against CSRF attacks.
-    if (csrfToken !== req.cookies.csrfToken) {
-      return res.status(401).send('UNAUTHORIZED REQUEST!');
-    }
-
-    // Set session expiration to 5 days.
-    const expiresIn = 60 * 60 * 24 * 5 * 1000;
-
-    // Create the session cookie. This will also verify the ID token in the process.
-    getAuth().createSessionCookie(idToken, { expiresIn })
-      .then((sessionCookie) => {
-        // Set cookie policy for session cookie.
-        const options = { maxAge: expiresIn, httpOnly: true, secure: true };
-        res.cookie('session', sessionCookie, options);
-        // Optionally, you can also set a JWT token for your application's custom authentication.
-        // Example:
-        // const token = generateCustomTokenForUser(user); // Implement this function to generate a custom JWT token.
-        // res.cookie('token', token, { maxAge: expiresIn, httpOnly: true, secure: true });
-        res.status(201).json({ success: true, message: 'Registered successfully' });
-      })
-      .catch((error) => {
-        console.error('Error creating session cookie:', error);
-        res.status(500).send('Internal Server Error');
-      });
-
-  } catch (error) {
-    next(error);
-  }
-};
 
 
 export const getMyprofile = (req, res) => {
