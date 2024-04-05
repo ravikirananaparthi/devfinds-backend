@@ -44,7 +44,7 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: [frontendOrigin],
+    origin: [frontendOrigin,'https://devfinds-frontend.vercel.app/'],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
