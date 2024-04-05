@@ -3,54 +3,28 @@ import jwt  from "jsonwebtoken";
 
 
 export const isAuthenticated = async (req, res, next) => {
-  const { token } = req.cookies;
+  // Check for token in local storage (if supported)
+  const token = localStorage.getItem('userToken');
 
-  if (token) {
-    try {
-      // Verify JWT token for traditional login
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const user = await User.findById(decoded._id);
-      
-      if (!user) {
-        return res.status(404).json({
-          success: false,
-          message: "User not found",
-        });
-      }
-
-      req.user = user;
-      next();
-    } catch (error) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid token",
-      });
-    }
-  } else if (req.user) {
-    // User is authenticated via Google authentication (Passport.js)
-    try {
-      const user = await User.findById(req.user._id);
-      
-      if (!user) {
-        return res.status(404).json({
-          success: false,
-          message: "User not found",
-        });
-      }
-
-      req.user = user;
-      next();
-    } catch (error) {
-      return res.status(500).json({
-        success: false,
-        message: "Internal Server Error",
-        error: error.message,
-      });
-    }
-  } else {
+  if (!token && token1 ) {
     return res.status(401).json({
       success: false,
-      message: "Unauthorized",
+      message: "Not authorized"
+    });
+  }
+
+  try {
+    // Verify the token on the backend (optional)
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Assuming verification is done elsewhere, set req.user for convenience
+    req.user = await User.findById(decoded._id); // Fetch user data if needed
+    next();
+  } catch (error) {
+    console.error(error);
+    return res.status(401).json({
+      success: false,
+      message: "Invalid token"
     });
   }
 };
