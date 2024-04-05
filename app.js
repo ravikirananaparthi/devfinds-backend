@@ -12,14 +12,17 @@ import { Post } from "./models/post.js";
 import { Like } from "./models/like.js";
 import { isAuthenticated } from "./middlewares/auth.js";
 import { User } from "./models/user.js";
-import firebaseConfig from "./utils/firebase.js";
+
 import helmet from "helmet";
 import morgan from "morgan";
 import { Notification } from "./models/notify.js";
 
+
+
 export const app = express();
 export const server = new createServer(app);
 const frontendOrigin = process.env.FRONTEND || "http://localhost:5173";
+
 export const io = new Server(server, {
   cors: {
     origin: frontendOrigin,

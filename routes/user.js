@@ -15,8 +15,6 @@ import { Post } from "../models/post.js";
 import { User } from "../models/user.js";
 import { isAuthenticated } from "../middlewares/auth.js";
 import { Notification } from "../models/notify.js";
-import firebase from 'firebase/compat/app';
-import admin from "firebase-admin";
 
 const router = express.Router();
 
@@ -44,41 +42,6 @@ router.post("/posts", isAuthenticated, async (req, res) => {
 });
 
 router.post("/new", register);
-
-router.post("/register-with-google", async (req, res) => {
-  try {
-    // Verify Firebase ID token
-    const decodedToken = await admin.auth().verifyIdToken(req.body.idToken);
-    const uid = decodedToken.uid;
-    let user = await User.findOne({ email: req.body.email });
-
-    if (user) {
-
-      const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
-      return res.status(200).json({ success: true, message: "Welcome back!", user, token });
-    }
-
-    // New user, create user in MongoDB
-    user = new User({
-      name: req.body.name,
-      email: req.body.email,
-      image: req.body.image,
-      programmingExperience:req.programmingExperience,
-      learnedTechnologies:req.learnedTechnologies,
-    });
-    await user.save();
-
-    // Generate JWT for user
-    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
-
-    // Send user data and token in response
-    res.status(201).json({ success: true, message: "Registration successful!", user, token });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, error: "An error occurred." });
-  }
-});
-
 
 router.post("/login", login);
 
