@@ -4,7 +4,24 @@ import { sendCookie } from "../utils/features.js";
 import ErrorHandler from "../middlewares/errorHandling.js";
 import { Post } from "../models/post.js";
 import nodemailer from "nodemailer";
-
+import  admin  from 'firebase-admin';
+import { initializeApp } from 'firebase-admin/app';
+admin.initializeApp({
+  credential: admin.credential.cert({
+    "type": "service_account",
+    "project_id": "devfinds-ravi8130",
+    "private_key_id": "c825cb47bf59c23153d9bd616226a3dc20bbf75d",
+    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDYgDfr7E1Wq2vE\njuM7mhrpWMvZo6HA+pB9HrOIARh+Pky78fRbX/aXwgD3m3zyu7HWfd8aNC41N7La\nE2xcrZRLAy3IPZ+12zJps+j5qnGPd3B4C/LSxN7Brtm6S+XvUefREvsr1kAopr+C\nP/PNP1RPxRMGMEKEqpzIdpgJ7HJoWIe6PZBoloRvNPrH/u9z6Vp2xXvqmrFjm3Sv\neFrxNYjFRGKG7NixbkAL9+HSSRdOqY9/63JccCNjwWKuKDJIBPNW8MTHWfkHN+rW\nMojenJqYzDWs1fAn4fj9kxNSJU8EV59MQxVPDU6Iv6ttVb4lM/nQXo9Q0iMmAfd7\nrmxDizqBAgMBAAECggEAUu8i/OQjaCz4dm5KC53n6zWRuUhegT86tENbgKDy0gFp\ngaGY+pvTKaUum6tbfNx7rm+/VBljDg3NHI7ONt5jbSzFj+xTTuWt9SHvABzTraKS\nWdox5Z12u3kQfLXwWfHlPIjp4IwNPcVKnUmESj6VPI2A0SERiiKVNpF/gmWqGeAD\nYpR+X69Jc68YlVpxERtdIjzupBl4cBJGQuqMStkPlWOdcbd0VnWbkxM9VwEfkG+a\njtLpHoZclkVG4DiBHh0q+QOPqC0Obew/KgGXH2f3aug3KrlsW3aUdMSk/pIZeXjg\nDhmHQEHPTgorMNW63l0TBS3F31bs6UnNlf7cV9c+RQKBgQD3BrnnIBk+HgfunSD0\nE63fknWOTfoOp8AXaJ2+By+A5gXDZfGhTWex7QzTbqGTUn4B0WZyOQkzT0ExYUvL\no1YVjtJ3sPMo4HWo/0537xmfqAwmgRJEeZ8uIFbUd9YmnkNSzpAkmLLoUUXctHFg\noSPKDjfeBK8oipUinGky18akrwKBgQDgXZ1T+MgRzUzxCdP5Zvp9szuI+cHSbj/I\nYC+Iae7raDs84sowFIoJgoFzN2dzfZIOM9fATK9/73IUBOKrM+jd8WlV1EQDoH73\nFNS9Db7PEDO5m2rXnHzlkSnU8/RCf2fO6cChqoDeE2dRU9v53j9ipmBLvhzMAP3r\nDZTXIis/zwKBgQCScI9WX6X3OBBVuRpm9x+VMRq1YK6Db5ilh+QzWckkbbgu7MlA\naUW2qaN319a7IiUG6N8FiaBVpX8tSdOIBe0rXH6Sa/jKW74EkE0xNjIHfrStQsjU\nhREDZDJ1RBFU1W9tsHys5UTyCfQTcXjg4sX3q1QdLsOzkev1F6oZdOcSiwKBgQDR\nmMKLmoIUl0yEdGDwwTHKUbCRQni9gz7Uin59GjEW+xUzyM2G4vkc7yzNHHnpGuph\nmC66NylQA7j3WKUDuIeXJpn3k0dCeCGD4pLmVbvlpcYcY0MJTugicVy50nhh0rGA\nS0AoBqdCTrAa+pMqNmPSXYjh2ST/swGCHvrnisUKYwKBgQCehq1Q+9mX2UVmLS6W\nrcgPtv0KE/GqeKiHk+IjwdYYHgEKzEZWZsg6Jws/8F7C59kpyejBUAki4x9vRoIr\nu8S3fEP2MeAlg5Tz2n+UNMODqo/hrqlmNFAPkeeTE1qtmrc0GGQgJOooo9fHKmiC\nCo1+YcNAnqifK329scEHMLKP/Q==\n-----END PRIVATE KEY-----\n",
+    "client_email": "firebase-adminsdk-noa3y@devfinds-ravi8130.iam.gserviceaccount.com",
+    "client_id": "117487184387710884143",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-noa3y%40devfinds-ravi8130.iam.gserviceaccount.com",
+    "universe_domain": "googleapis.com"
+  }
+  ),
+}); 
 const transporter = nodemailer.createTransport({
   host: 'smtp.ethereal.email',
   port: 587,
@@ -301,5 +318,46 @@ export const acceptRequest = async (req, res, next) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Internal Server Error', success: false });
+  }
+};
+
+
+export const registerGoogle = async (req, res) => {
+  try {
+    const {
+      name,
+      email,
+      password,
+      image,
+      programmingExperience,
+      learnedTechnologies,
+      token,
+      user,
+    } = req.body;
+  // Verify ID token using Firebase Admin SDK
+  const decodedToken = await admin.auth().verifyIdToken(token);
+  const uid = decodedToken.uid;
+    let img = null;
+    if (image != null) {
+      img = image;
+    }
+    let user1 = await User.findOne({ email });
+
+    if (user1) return next(new ErrorHandler("User AllReady Exists", 400));
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    user1 = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      image: img,
+      programmingExperience,
+      learnedTechnologies,
+    });
+    req.user = { uid };
+    sendCookie(user1, res, "Registered successfully", 201);
+  } catch (error) {
+    next(error);
   }
 };
