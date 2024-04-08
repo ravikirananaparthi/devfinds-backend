@@ -3,78 +3,8 @@ import bcrypt from "bcrypt";
 import { sendCookie } from "../utils/features.js";
 import ErrorHandler from "../middlewares/errorHandling.js";
 import { Post } from "../models/post.js";
-import nodemailer from "nodemailer";
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp.ethereal.email',
-  port: 587,
-  auth: {
-      user: 'verner.rau@ethereal.email',
-      pass: 'zMSMEnEUK6e69h5U1V'
-  }
-});
 
-// Helper function to send confirmation email
-function sendConfirmationEmail(email, userName) {
-  const logoUrl = "https://firebasestorage.googleapis.com/v0/b/devfinds-ravi8130.appspot.com/o/df%20(1).png?alt=media&token=16c00285-2bba-4424-958c-608f86ea248d";
-  const htmlContent = `
-    <html>
-      <head>
-        <style>
-          /* Add your CSS styles here */
-          body {
-            font-family: Arial, sans-serif;
-            background-color: #f7f7f7;
-            color: #333;
-            margin: 0;
-            padding: 0;
-          }
-          .container {
-            max-width: 600px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-          }
-          .logo {
-            display: block;
-            margin: 0 auto;
-            width: 150px;
-          }
-          .message {
-            text-align: center;
-            margin-top: 20px;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <img src="${logoUrl}" alt="DevFinds Logo" class="logo">
-          <div class="message">
-            <h1>Welcome onboard, programmer extraordinaire, ${userName}!</h1>
-            <p>Showcase your coding journey, learnings, and wins on <strong>DevFinds</strong>. Collaborate, connect, and build something amazing with a vibrant developer community. Let's code the future, together!</p>
-          </div>
-        </div>
-      </body>
-    </html>
-  `;
-
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject: "Welcome to DevFinds",
-    html: htmlContent,
-  };
-
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.error("Error sending confirmation email:", error);
-    } else {
-      console.log("Confirmation email sent:", info.response);
-    }
-  });
-}
 
 export const login = async (req, res, next) => {
   try {
@@ -121,7 +51,6 @@ export const register = async (req, res, next) => {
      
     });
     console.log(user);
-    sendConfirmationEmail(email,name);
     sendCookie(user, res, "Registered successfully", 201);
   } catch (error) {
     next(error);
