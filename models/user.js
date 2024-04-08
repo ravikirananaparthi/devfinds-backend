@@ -17,6 +17,10 @@ const schema = new mongoose.Schema(
       required: true,
       select: false,
     },
+    socialauth:{
+      type:Boolean,
+      default:false,
+    },
     createdAt: {
       type: Date,
       default: Date.now,
