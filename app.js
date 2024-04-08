@@ -28,7 +28,7 @@ try {
 } catch (error) {
   console.error("Error loading environment variables:", error);
 }
-const frontendOrigin =['https://devfinds-frontend.vercel.app', process.env.FRONTEND];
+const frontendOrigin = ["http://localhost:5173",'https://devfinds-frontend.vercel.app'];
 
 
 export const io = new Server(server, {
