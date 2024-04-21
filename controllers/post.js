@@ -6,12 +6,10 @@ export const userposts = async (req, res) => {
   const userId = req.params.userId;
 
   try {
-   
     const posts = await Post.find({ user: userId })
       .populate("user")
       .populate("comments.postedBy")
       .exec();
-
 
     res.status(200).json({ success: true, posts });
   } catch (error) {
@@ -24,8 +22,7 @@ export const userposts = async (req, res) => {
 
 export const displaypost = async (req, res) => {
   try {
-    const postId = req.params.postId; 
-  
+    const postId = req.params.postId;
 
     const post = await Post.findById(postId)
       .populate({
@@ -35,13 +32,13 @@ export const displaypost = async (req, res) => {
           select: "name image", // select only the 'name' field from the user document
         },
       })
-      .populate("user", "name image"); 
+      .populate("user", "name image");
     if (!post) {
       return res
         .status(404)
         .json({ success: false, message: "Post not found" });
     }
-    res.status(200).json({ success: true, post }); 
+    res.status(200).json({ success: true, post });
   } catch (error) {
     console.error("Error fetching post:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -64,7 +61,7 @@ export const comment = async (req, res, next) => {
       "name email image"
     );
     // Create a notification for the post owner
-    
+
     const notifications = `${req.user.name} has commented on your post: "${postComment.title}" - ${comment}`;
     const notification = new Notification({
       userId: post.user._id,
@@ -88,7 +85,7 @@ export const comment = async (req, res, next) => {
 export const reachclick = async (req, res) => {
   try {
     const postId = req.params.postId;
- 
+
     await Post.findByIdAndUpdate(postId, { $inc: { reach: 1 } });
     res.status(200).json({ message: "Post reach updated successfully" });
   } catch (error) {
@@ -98,7 +95,6 @@ export const reachclick = async (req, res) => {
 };
 export const like = async (req, res, next) => {
   try {
-   
     const post = await Post.findByIdAndUpdate(
       req.params.postId,
       {
@@ -110,9 +106,8 @@ export const like = async (req, res, next) => {
         path: "comments",
         populate: { path: "postedBy", select: "name" }, // Populate the 'postedBy' field within the 'comments' array
       })
-      .populate("user", "name"); 
+      .populate("user", ["name", "image"]);
 
-  
     io.emit("add-like", post);
     console.log(post);
     // Send the response with the updated post
@@ -130,13 +125,11 @@ export const like = async (req, res, next) => {
       post,
     });
   } catch (error) {
-    
     next(error);
   }
 };
 export const unlike = async (req, res, next) => {
   try {
-    // Update the post by removing the user's ID from the likes array
     const post = await Post.findByIdAndUpdate(
       req.params.postId,
       {
@@ -146,11 +139,10 @@ export const unlike = async (req, res, next) => {
     )
       .populate({
         path: "comments",
-        populate: { path: "postedBy", select: "name" }, 
+        populate: { path: "postedBy", select: "name" },
       })
-      .populate("user", "name"); // Populate the 'user' field
+      .populate("user", ["name", "image"]);
 
-    // Emit an event to notify clients about the unlike operation
     io.emit("remove-like", post);
 
     // Send the response with the updated post
@@ -159,7 +151,6 @@ export const unlike = async (req, res, next) => {
       post,
     });
   } catch (error) {
-   
     next(error);
   }
 };
@@ -167,9 +158,8 @@ export const unlike = async (req, res, next) => {
 export const search = async (req, res) => {
   try {
     const { title } = req.query;
-    const regex = new RegExp(title, "i"); 
+    const regex = new RegExp(title, "i");
 
-  
     const posts = await Post.find({ title: regex });
 
     res.status(200).json(posts);
@@ -180,20 +170,46 @@ export const search = async (req, res) => {
 };
 export const deletePost = async (req, res, next) => {
   try {
-    const postId = req.params.postId; 
+    const postId = req.params.postId;
 
-   
     const deletedPost = await Post.findByIdAndDelete(postId);
 
-   
     if (!deletedPost) {
       return res.status(404).json({ message: "Post not found" });
     }
 
-  
     res.status(200).json({ message: "Post deleted successfully" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const trending = async (req, res) => {
+  try {
+    const trendingPosts = await Post.find()
+      .sort({ likes: -1 })
+      .limit(4)
+      .populate("user", "name image")
+      .populate("likes")
+      .populate("comments")
+      .populate('tof')
+      .populate('image');
+
+    const postsWithCounts = trendingPosts.map((post) => ({
+      _id: post._id,
+      title: post.title,
+      description: post.description,
+      user: post.user,
+      image: post.image,
+      tof: post.tof,
+      likesCount: post.likes.length,
+      commentsCount: post.comments.length,
+    }));
+
+    res.status(200).json(postsWithCounts);
+  } catch (error) {
+    console.error("Error fetching trending posts:", error);
+    res.status(500).json({ error: "Could not fetch trending posts" });
   }
 };

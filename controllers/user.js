@@ -234,4 +234,43 @@ export const acceptRequest = async (req, res, next) => {
   }
 };
 
+export const trend = async (req, res, next) => {
+  try {
+    const posts = await Post.aggregate([
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'user',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      {
+        $addFields: {
+          likesCount: { $size: '$likes' },
+        },
+      },
+      {
+        $sort: { likesCount: -1 },
+      },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          description: 1,
+          image: 1,
+          createdAt: 1,
+          tof: 1, // Include the 'tof' field
+          user: { $arrayElemAt: ['$user', 0] },
+          likesCount: 1,
+          commentsCount: { $size: '$comments' },
+        },
+      },
+    ]);
 
+    res.status(200).json(posts);
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};

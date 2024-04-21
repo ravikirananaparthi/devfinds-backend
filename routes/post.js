@@ -9,12 +9,13 @@ import {
   like,
   reachclick,
   search,
+  trending,
   unlike,
   userposts,
 } from "../controllers/post.js";
 
 const router = express.Router();
-
+router.get('/trendingpost',isAuthenticated,trending);
 router.get("/post/:postId", displaypost);
 router.get("/user/:userId", isAuthenticated, userposts);
 
@@ -33,4 +34,5 @@ router.post("/comment/post/:postId", isAuthenticated, comment);
 router.put("/like/post/:postId", isAuthenticated, like);
 router.put("/unlike/post/:postId", isAuthenticated, unlike);
 router.delete("/delete/:postId",isAuthenticated,deletePost);
+
 export default router;

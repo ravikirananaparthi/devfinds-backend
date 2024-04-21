@@ -9,6 +9,7 @@ import {
   login,
   logout,
   register,
+  trend,
 } from "../controllers/user.js";
 
 import { Post } from "../models/post.js";
@@ -50,6 +51,7 @@ router.get("/logout", logout);
 router.get("/me", isAuthenticated, getMyprofile);
 
 router.get("/viewposts", isAuthenticated, feed);
+router.get("/trendingposts", isAuthenticated, trend);
 
 router.post("/friendrequest", isAuthenticated, friendRequest);
 
@@ -97,17 +99,18 @@ router.post("/profilepic", isAuthenticated, async (req, res) => {
 router.get("/findusers", isAuthenticated, async (req, res) => {
   try {
     const { query } = req.query;
-
+    console.log(query);
     if (typeof query !== "string" || query.trim() === "") {
       return res.status(400).json({ message: "Invalid search query" });
     }
 
     const currentUser = await User.findById(req.user._id);
-    currentUser.searchHistory.push(query);
+    if (query.slice(-1) === "$") {
+      currentUser.searchHistory.push(query.slice(0,-1));
+    }
     await currentUser.save();
-
-    const users = await User.find({ name: { $regex: query, $options: "i" } });
-
+    if (query.slice(-1) === "$") {
+    const users = await User.find({ name: { $regex: query.slice(0,-1), $options: "i" } });
     const usersWithStatus = users.map((user) => {
       let status = "";
       if (currentUser.inRequest.includes(user._id)) {
@@ -119,12 +122,59 @@ router.get("/findusers", isAuthenticated, async (req, res) => {
     });
 
     res.status(200).json(usersWithStatus);
+    }
+    else{
+      const users = await User.find({ name: { $regex: query, $options: "i" } });
+      const usersWithStatus = users.map((user) => {
+        let status = "";
+        if (currentUser.inRequest.includes(user._id)) {
+          status = "Request already sent";
+        } else if (currentUser.friends.includes(user._id)) {
+          status = "Friends already";
+        }
+        return { ...user._doc, status };
+      });
+  
+      res.status(200).json(usersWithStatus);
+    }
+
   } catch (error) {
     console.error("Error searching users:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
-router.get("/trendingsearches", async (req, res) => {
+router.get('/trendingsearches', async (req, res) => {
+  try {
+    // Fetch all user documents
+    const allUsers = await User.find();
+
+    // Extract search history from each user and flatten into a single array
+    const allSearchHistory = allUsers.reduce((accumulator, currentUser) => {
+      accumulator.push(...currentUser.searchHistory);
+      return accumulator;
+    }, []);
+
+    // Count occurrences of each search term
+    const searchCounts = {};
+    allSearchHistory.forEach(term => {
+      searchCounts[term] = (searchCounts[term] || 0) + 1;
+    });
+
+    // Sort search terms by their occurrences
+    const sortedSearchTerms = Object.keys(searchCounts).sort(
+      (a, b) => searchCounts[b] - searchCounts[a]
+    );
+
+    // Select the top 5 most searched keys
+    const trendingSearchKeys = sortedSearchTerms.slice(0, 5);
+
+    res.json({ trendingSearchKeys });
+  } catch (error) {
+    console.error('Error fetching trending search keys:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+router.get("/trendingsearches1", async (req, res) => {
   try {
     const trendingSearches = await User.aggregate([
       { $unwind: "$searchHistory" },
@@ -147,7 +197,7 @@ router.get("/searchhistory", isAuthenticated, async (req, res) => {
     console.log(req.user);
     const currentUser = await User.findById(req.user._id);
     const searchHistory = currentUser.searchHistory.slice(-5);
-
+    console.log(searchHistory);
     res.status(200).json(searchHistory);
   } catch (error) {
     console.error("Error fetching search history:", error);
