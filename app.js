@@ -12,7 +12,8 @@ import { Post } from "./models/post.js";
 import { Like } from "./models/like.js";
 import { isAuthenticated } from "./middlewares/auth.js";
 import { User } from "./models/user.js";
-import serviceAccountKey from "./devfinds-ravi8130-firebase-adminsdk-noa3y-c825cb47bf.json" assert { type: "json" };
+import * as serviceAccountKey from "./devfinds-ravi8130-firebase-adminsdk-noa3y-c825cb47bf.json";
+
 import helmet from "helmet";
 import morgan from "morgan";
 import { Notification } from "./models/notify.js";
