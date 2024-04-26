@@ -15,7 +15,8 @@ import { User } from "./models/user.js";
 
 
 
-import * as serviceAccountKey from "./devfinds-ravi8130-firebase-adminsdk-noa3y-c825cb47bf.json";
+
+import * as fs from 'fs';
 
 import helmet from "helmet";
 import morgan from "morgan";
@@ -23,7 +24,7 @@ import { Notification } from "./models/notify.js";
 import admin from "firebase-admin";
 import { getAuth } from "firebase-admin/auth";
 import jwt from "jsonwebtoken";
-
+const serviceAccountKey = JSON.parse(fs.readFileSync('./devfinds-ravi8130-firebase-adminsdk-noa3y-c825cb47bf.json'));
 export const app = express();
 export const server = new createServer(app);
 try {
